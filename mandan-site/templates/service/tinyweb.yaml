@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mandan-site.fullname" . }}-webapp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "mandan-site.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+spec:
+  type: {{ .Values.webapp.service.type }}
+  ports:
+  - port: {{ .Values.webapp.service.port }}
+    targetPort: {{ .Values.webapp.service.targetPort }}
+    protocol: TCP
+    name: webapp-svc-port
+  selector:
+    app: {{ include "mandan-site.fullname" . }}-webapp

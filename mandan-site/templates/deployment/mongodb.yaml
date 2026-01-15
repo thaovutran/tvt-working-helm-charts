@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mandan-site.fullname" . }}-mongodb
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "mandan-site.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mongodb
+spec:
+  replicas: {{ .Values.mongodb.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "mandan-site.fullname" . }}-mongodb
+  template:
+    metadata:
+      labels:
+        {{- include "mandan-site.labels" . | nindent 8 }}
+        app: {{ include "mandan-site.fullname" . }}-mongodb
+        app.kubernetes.io/component: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: "{{ .Values.mongodb.image.repository }}:{{ .Values.mongodb.image.tag }}"
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mandan-site.fullname" . }}-mongodb-secret
+              key: mongodb-root-username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mandan-site.fullname" . }}-mongodb-secret
+              key: mongodb-root-password
+        ports:
+        - containerPort: {{ .Values.mongodb.service.port }}
+        volumeMounts:
+        {{- range .Values.mongodb.volumeMounts }}
+        - name: {{ .name }}
+          mountPath: {{ .mountPath }}
+        {{- end }}
+      volumes:
+      {{- range .Values.mongodb.volumes }}
+      - name: {{ .name }}
+        hostPath:
+          path: {{ .hostPath.path }}
+      {{- end }}

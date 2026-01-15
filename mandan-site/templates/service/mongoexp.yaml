@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mandan-site.fullname" . }}-mongoexp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "mandan-site.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mongoexp
+spec:
+  type: {{ .Values.mongoexp.service.type }}
+  ports:
+  - port: {{ .Values.mongoexp.service.port }}
+    targetPort: {{ .Values.mongoexp.service.port }}
+    protocol: TCP
+    name: mongoexp-svc-port
+  selector:
+    app: {{ include "mandan-site.fullname" . }}-mongoexp

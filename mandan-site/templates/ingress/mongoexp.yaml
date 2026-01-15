@@ -1,0 +1,33 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "mandan-site.fullname" . }}-mongoexp-ingress
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- range $key, $value := .Values.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  labels:
+    {{- include "mandan-site.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mongoexp
+spec:
+  ingressClassName: nginx
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+  - hosts:
+      - {{ .Values.ingress.mongodbHost }}
+    secretName: {{ .Values.ingress.tls.secretName }}
+  {{- end }}
+  rules:
+  - host: {{ .Values.ingress.mongodbHost }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "mandan-site.fullname" . }}-mongoexp
+            port:
+              number: {{ .Values.mongoexp.service.port }}
+{{- end }}

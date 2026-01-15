@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mandan-site.fullname" . }}-webapp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "mandan-site.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+spec:
+  replicas: {{ .Values.webapp.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "mandan-site.fullname" . }}-webapp
+  template:
+    metadata:
+      labels:
+        {{- include "mandan-site.labels" . | nindent 8 }}
+        app: {{ include "mandan-site.fullname" . }}-webapp
+        app.kubernetes.io/component: web
+    spec:
+      containers:
+      - name: webapp
+        image: "{{ .Values.webapp.image.repository }}:{{ .Values.webapp.image.tag }}"
+        env:
+        - name: USER_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mandan-site.fullname" . }}-mongodb-secret
+              key: mongodb-root-username
+        - name: USER_PWD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mandan-site.fullname" . }}-mongodb-secret
+              key: mongodb-root-password
+        - name: DB_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "mandan-site.fullname" . }}-mongo-cfm
+              key: mongodb_url
+        ports:
+        - containerPort: {{ .Values.webapp.service.targetPort }}
