@@ -1,0 +1,19 @@
+{{- if .Values.persistence.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "mandan-site.fullname" . }}-{{ .Values.persistence.postfix }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "mandan-site.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mongodb
+spec:
+  accessModes:
+    - {{ .Values.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size | quote }}
+  {{- if .Values.persistence.storageClass -}}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
+  {{- end -}}
+{{- end -}}

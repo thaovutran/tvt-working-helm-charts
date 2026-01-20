@@ -63,7 +63,7 @@ The command removes all the **ManDan TinyWebsite** components associated with th
 
 **If ingress is enabled:**
   - Access Mongo Express: `http://mandandb.k8s.local`
-  - Access ManDan website: `http://mandandb.k8s.local`
+  - Access ManDan website: `http://mandanweb.k8s.local`
 
 ## Handle TLS cert
 

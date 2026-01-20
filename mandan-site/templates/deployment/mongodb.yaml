@@ -40,8 +40,6 @@ spec:
           mountPath: {{ .mountPath }}
         {{- end }}
       volumes:
-      {{- range .Values.mongodb.volumes }}
-      - name: {{ .name }}
-        hostPath:
-          path: {{ .hostPath.path }}
-      {{- end }}
+      - name: db-data
+        persistentVolumeClaim:
+          claimName: {{ include "mandan-site.fullname" . }}-{{ .Values.persistence.postfix }}
